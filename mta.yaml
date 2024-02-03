@@ -115,7 +115,7 @@ resources:
   parameters:
     service: html5-apps-repo
     service-name: MTACollege-html5-app-host-service
-    service-plan: app-host
+    service-plan: app-host   
 - name: uaa_MTACollege
   type: org.cloudfoundry.managed-service
   parameters:
