@@ -1,6 +1,6 @@
 using MTACollege as mta from '../db/schema';
 
-//unnecessary comment
+//unnecessary comment2
 
 service myService{
     entity college as projection on mta.college;
