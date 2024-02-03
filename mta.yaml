@@ -1,0 +1,134 @@
+_schema-version: "3.1"
+ID: MTACollege
+description: A simple CAP project.
+version: 1.0.0
+modules:
+- name: MTACollege-srv
+  type: nodejs
+  path: gen/srv
+  requires:
+  - name: MTACollege-db
+  - name: uaa_MTACollege
+  provides:
+  - name: srv-api
+    properties:
+      srv-url: ${default-url}
+  parameters:
+    buildpack: nodejs_buildpack
+  build-parameters:
+    builder: npm
+- name: MTACollege-db-deployer
+  type: hdb
+  path: gen/db
+  requires:
+  - name: MTACollege-db
+  parameters:
+    buildpack: nodejs_buildpack
+- name: MTACollege-destination-content
+  type: com.sap.application.content
+  requires:
+  - name: MTACollege-destination-service
+    parameters:
+      content-target: true
+  - name: MTACollege_html_repo_host
+    parameters:
+      service-key:
+        name: MTACollege_html_repo_host-key
+  - name: uaa_MTACollege
+    parameters:
+      service-key:
+        name: uaa_MTACollege-key
+  parameters:
+    content:
+      instance:
+        destinations:
+        - Name: MTAColl_MTACollege_html_repo_host
+          ServiceInstanceName: MTACollege-html5-app-host-service
+          ServiceKeyName: MTACollege_html_repo_host-key
+          sap.cloud.service: MTAColl
+        - Authentication: OAuth2UserTokenExchange
+          Name: MTAColl_uaa_MTACollege
+          ServiceInstanceName: MTACollege-xsuaa-service
+          ServiceKeyName: uaa_MTACollege-key
+          sap.cloud.service: MTAColl
+        existing_destinations_policy: ignore
+  build-parameters:
+    no-source: true
+- name: MTACollege-app-content
+  type: com.sap.application.content
+  path: .
+  requires:
+  - name: MTACollege_html_repo_host
+    parameters:
+      content-target: true
+  build-parameters:
+    build-result: resources
+    requires:
+    - artifacts:
+      - modulemtaproj.zip
+      name: modulemtaproj
+      target-path: resources/
+- name: modulemtaproj
+  type: html5
+  path: app/modulemtaproj
+  build-parameters:
+    build-result: dist
+    builder: custom
+    commands:
+    - npm install
+    - npm run build:cf
+    supported-platforms: []
+resources:
+- name: MTACollege-db
+  type: org.cloudfoundry.existing-service
+  parameters:
+    service-name: MTACollegedb
+- name: MTACollege-destination-service
+  type: org.cloudfoundry.managed-service
+  parameters:
+    config:
+      HTML5Runtime_enabled: true
+      init_data:
+        instance:
+          destinations:
+          - Authentication: NoAuthentication
+            Name: ui5
+            ProxyType: Internet
+            Type: HTTP
+            URL: https://ui5.sap.com
+          - Authentication: NoAuthentication
+            HTML5.DynamicDestination: true
+            HTML5.ForwardAuthToken: true
+            Name: MTACollege-srv-api
+            ProxyType: Internet
+            Type: HTTP
+            URL: ~{srv-api/srv-url}
+          existing_destinations_policy: update
+      version: 1.0.0
+    service: destination
+    service-name: MTACollege-destination-service
+    service-plan: lite
+  requires:
+  - name: srv-api
+- name: MTACollege_html_repo_host
+  type: org.cloudfoundry.managed-service
+  parameters:
+    service: html5-apps-repo
+    service-name: MTACollege-html5-app-host-service
+    service-plan: app-host
+- name: uaa_MTACollege
+  type: org.cloudfoundry.managed-service
+  parameters:
+    path: ./xs-security.json
+    service: xsuaa
+    service-name: MTACollege-xsuaa-service
+    service-plan: application
+parameters:
+  deploy_mode: html5-repo
+  enable-parallel-deployments: true
+build-parameters:
+  before-all:
+  - builder: custom
+    commands:
+    - npm install
+    - npx cds build --production

@@ -1,0 +1,176 @@
+{
+    "_version": "1.59.0",
+    "sap.app": {
+        "id": "modulemtaproj",
+        "type": "application",
+        "i18n": "i18n/i18n.properties",
+        "applicationVersion": {
+            "version": "0.0.1"
+        },
+        "title": "{{appTitle}}",
+        "description": "{{appDescription}}",
+        "resources": "resources.json",
+        "sourceTemplate": {
+            "id": "@sap/generator-fiori:lrop",
+            "version": "1.12.3",
+            "toolsId": "832bac7e-36be-4710-bfc1-4aedec8cb85d"
+        },
+        "dataSources": {
+            "mainService": {
+                "uri": "odata/v4/my/",
+                "type": "OData",
+                "settings": {
+                    "annotations": [],
+                    "odataVersion": "4.0"
+                }
+            }
+        },
+        "crossNavigation": {
+            "inbounds": {
+                "SemMTAObj-Display": {
+                    "semanticObject": "SemMTAObj",
+                    "action": "Display",
+                    "title": "{{flpTitle}}",
+                    "signature": {
+                        "parameters": {},
+                        "additionalParameters": "allowed"
+                    }
+                }
+            }
+        }
+    },
+    "sap.ui": {
+        "technology": "UI5",
+        "icons": {
+            "icon": "",
+            "favIcon": "",
+            "phone": "",
+            "phone@2": "",
+            "tablet": "",
+            "tablet@2": ""
+        },
+        "deviceTypes": {
+            "desktop": true,
+            "tablet": true,
+            "phone": true
+        }
+    },
+    "sap.ui5": {
+        "flexEnabled": true,
+        "dependencies": {
+            "minUI5Version": "1.120.5",
+            "libs": {
+                "sap.m": {},
+                "sap.ui.core": {},
+                "sap.ushell": {},
+                "sap.fe.templates": {}
+            }
+        },
+        "contentDensities": {
+            "compact": true,
+            "cozy": true
+        },
+        "models": {
+            "i18n": {
+                "type": "sap.ui.model.resource.ResourceModel",
+                "settings": {
+                    "bundleName": "modulemtaproj.i18n.i18n"
+                }
+            },
+            "": {
+                "dataSource": "mainService",
+                "preload": true,
+                "settings": {
+                    "synchronizationMode": "None",
+                    "operationMode": "Server",
+                    "autoExpandSelect": true,
+                    "earlyRequests": true
+                }
+            },
+            "@i18n": {
+                "type": "sap.ui.model.resource.ResourceModel",
+                "uri": "i18n/i18n.properties"
+            }
+        },
+        "resources": {
+            "css": []
+        },
+        "routing": {
+            "config": {},
+            "routes": [
+                {
+                    "pattern": ":?query:",
+                    "name": "collegeList",
+                    "target": "collegeList"
+                },
+                {
+                    "pattern": "college({key}):?query:",
+                    "name": "collegeObjectPage",
+                    "target": "collegeObjectPage"
+                },
+                {
+                    "pattern": "college({key})/colltostud({key2}):?query:",
+                    "name": "studentObjectPage",
+                    "target": "studentObjectPage"
+                }
+            ],
+            "targets": {
+                "collegeList": {
+                    "type": "Component",
+                    "id": "collegeList",
+                    "name": "sap.fe.templates.ListReport",
+                    "options": {
+                        "settings": {
+                            "contextPath": "/college",
+                            "variantManagement": "Page",
+                            "navigation": {
+                                "college": {
+                                    "detail": {
+                                        "route": "collegeObjectPage"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "collegeObjectPage": {
+                    "type": "Component",
+                    "id": "collegeObjectPage",
+                    "name": "sap.fe.templates.ObjectPage",
+                    "options": {
+                        "settings": {
+                            "editableHeaderContent": false,
+                            "contextPath": "/college",
+                            "navigation": {
+                                "colltostud": {
+                                    "detail": {
+                                        "route": "studentObjectPage"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "studentObjectPage": {
+                    "type": "Component",
+                    "id": "studentObjectPage",
+                    "name": "sap.fe.templates.ObjectPage",
+                    "options": {
+                        "settings": {
+                            "editableHeaderContent": false,
+                            "contextPath": "/college/colltostud"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "sap.fiori": {
+        "registrationIds": [],
+        "archeType": "transactional"
+    },
+    "sap.cloud": {
+        "public": true,
+        "service": "MTAColl"
+    }
+}
