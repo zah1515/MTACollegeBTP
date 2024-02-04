@@ -29,7 +29,11 @@
         "requires": {
             "db": "hana",
             "auth": "dummy"
-        }
+        },
+        "fiori": {
+            "lean_draft": true,
+            "bypass_draft": true
+          }
     },
     "sapux": [
         "app/modulemtaproj"
